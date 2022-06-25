@@ -14,6 +14,7 @@ import zmq
 
 # QT-Widgets
 qtcreator_file  = "ModuleSCAN.ui" # Enter file here.
+
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtcreator_file)
 
 
@@ -37,18 +38,49 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
     #         self.results_window.setText(total_price_string)
 
     def send_socket(self):
-        # ZMQ Communication
+       #
+        #   Hello World client in Python
+        #   Connects REQ socket to tcp://localhost:5555
+        #   Sends "Hello" to server, expects "World" back
+        #
+
         context = zmq.Context()
+
+        #  Socket to talk to server
+        print("Connecting to server…")
         socket = context.socket(zmq.REQ)
-        socket.bind("tcp://*:555")
+        socket.connect("tcp://localhost:5555")
 
+        #  Do 10 requests, waiting each time for a response
+        for request in range(10):
+            print("Sending request %s …" % request)
+            socket.send(b"Start Command")
 
-        for request in range (10):
-            print("Sending request %s ..." % request)
-            socket.send(b"Hello")
-
+            #  Get the reply.
             message = socket.recv()
-            print("Received reply %s [ %s ]" % (request , message))
+            if(message[len(message)-1]==49 and request==7):#Camera1:1
+                print("Camera1 is ok")
+                self.Camera_1.setText("Camera1 is OK.")
+            elif(message[len(message)-1]==48 and request==7): #Camera1:0
+                print("Camera1 is false")
+                self.Camera_1.setText("<p style='color:red;'>ERROR<p>")
+
+            elif(message[len(message)-1]==49 and request==8):#Camera2:1
+                print("Camera2 is ok")
+                self.Camera_2.setText("Camera1 is OK.")
+            elif(message[len(message)-1]==48 and request==8): #Camera2:0
+                print("Camera2 is false")
+                self.Camera_2.setText("<p style='color:red;'>ERROR<p>")
+
+            elif(message[len(message)-1]==49 and request==9):#Camera3:1
+                print("Camera3 is ok")
+                self.Camera_3.setText("Camera1 is OK.")
+            elif(message[len(message)-1]==48 and request==9): #Camera3:0
+                print("Camera3 is false")
+                self.Camera_3.setText("<p style='color:red;'>ERROR<p>")
+
+            else :
+                print("Received reply %s [ %s ]" % (request, message))
 
 
 
